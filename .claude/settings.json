@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p /Users/leonardotelles/Documents/Corporative/Personal/Study/Projects/core-manager/.claude/commands)",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-turbopack)",
+      "Bash(npx create-next-app@latest donelog-tmp --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-turbopack)"
+    ],
+    "additionalDirectories": [
+      "/Users/leonardotelles/Documents/Corporative/Personal/Study/Projects/core-manager/.claude"
+    ]
+  }
+}
