@@ -1,58 +1,41 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-type State = "idle" | "loading" | "sent" | "error";
+type State = "idle" | "loading" | "error";
 
 export function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [state, setState] = useState<State>("idle");
-  const [error, setError] = useState<string | null>(null);
+  const [email, setEmail]       = useState("");
+  const [password, setPassword] = useState("");
+  const [state, setState]       = useState<State>("idle");
+  const [error, setError]       = useState<string | null>(null);
+
+  const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.trim()) return;
+    if (!email.trim() || !password) return;
 
     setState("loading");
     setError(null);
 
     const supabase = createClient();
-    const { error: authError } = await supabase.auth.signInWithOtp({
+    const { error: authError } = await supabase.auth.signInWithPassword({
       email: email.trim(),
-      options: {
-        shouldCreateUser: true,
-      },
+      password,
     });
 
     if (authError) {
-      setError("Não foi possível enviar o link. Tente novamente.");
+      setError("E-mail ou senha incorretos.");
       setState("error");
       return;
     }
 
-    setState("sent");
-  }
-
-  if (state === "sent") {
-    return (
-      <div className="rounded-lg border border-border bg-bg-surface p-6 text-center space-y-2">
-        <p className="text-sm font-medium text-text-primary">
-          Link enviado para {email}
-        </p>
-        <p className="text-xs text-text-secondary">
-          Verifique sua caixa de entrada e clique no link para entrar.
-        </p>
-        <button
-          onClick={() => { setState("idle"); setEmail(""); }}
-          className="text-xs text-accent underline underline-offset-2 mt-2"
-        >
-          Usar outro e-mail
-        </button>
-      </div>
-    );
+    router.push("/hoje");
   }
 
   return (
@@ -67,16 +50,25 @@ export function LoginForm() {
           disabled={state === "loading"}
           className="bg-bg-subtle border-border text-text-primary placeholder:text-text-muted focus-visible:ring-border-focus"
         />
+        <Input
+          type="password"
+          placeholder="Senha"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          disabled={state === "loading"}
+          className="bg-bg-subtle border-border text-text-primary placeholder:text-text-muted focus-visible:ring-border-focus"
+        />
         {error && (
-          <p className="text-xs text-danger">{error}</p>
+          <p role="alert" className="text-xs text-danger">{error}</p>
         )}
       </div>
       <Button
         type="submit"
-        disabled={state === "loading" || !email.trim()}
+        disabled={state === "loading" || !email.trim() || !password}
         className="w-full bg-accent-brand text-bg-base hover:bg-accent-brand-hover"
       >
-        {state === "loading" ? "Enviando..." : "Entrar com magic link"}
+        {state === "loading" ? "Entrando..." : "Entrar"}
       </Button>
     </form>
   );
